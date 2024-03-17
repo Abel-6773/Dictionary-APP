@@ -4,54 +4,54 @@ const wrapper = document.querySelector(".wrapper"),
   infoText = wrapper.querySelector(".info-text"),
   synonyms = wrapper.querySelector(".synonyms .list"),
   removeIcon = wrapper.querySelector(".search span"),
-  form = wrapper.querySelector("form");
-audio = wrapper.querySelector(".audio");
+  form = wrapper.querySelector("form"),
+  content = wrapper.querySelector(".content"),
+  audio = wrapper.querySelector(".audio");
 
 function data(result, word) {
-  if (result.title) {
-    infoText.innerHTML = `Can't find the meaning of <span>"${word}"</span>. Please, try to search for another word.`;
-  } else {
-    wrapper.classList.add("active");
-    let definitions = result[0].meanings[0].definitions[0],
-      phontetics = `${result[0].meanings[0].partOfSpeech}  /${result[0].phonetics[0].text}/`;
-    document.querySelector(".word p").innerText = result[0].word;
-    document.querySelector(".word span").innerText = phontetics;
-    document.querySelector(".meaning span").innerText = definitions.definition;
-    document.querySelector(".example span").innerText = definitions.example;
-    audio.src = result[0].phonetics[0].audio;
+  wrapper.classList.add("active");
+  document.querySelector(".word p").innerHTML = result[0].hwi.hw;
+  document.querySelector(".word span").innerText = result[0].hwi.prs[0].mw;
+  audio.src = `https://media.merriam-webster.com/audio/prons/en/us/mp3/${word[0]}/${result[0].hwi.prs[0].sound.audio}.mp3`;
 
-    if (definitions.synonyms[0] == undefined) {
-      synonyms.parentElement.style.display = "none";
-    } else {
-      synonyms.parentElement.style.display = "block";
-      synonyms.innerHTML = "";
-      for (let i = 0; i < 5; i++) {
-        let tag = `<span onclick="search('${definitions.synonyms[i]}')">${definitions.synonyms[i]},</span>`;
-        tag =
-          i == 4
-            ? (tag = `<span onclick="search('${definitions.synonyms[i]}')">${definitions.synonyms[4]}</span>`)
-            : tag;
-        synonyms.insertAdjacentHTML("beforeend", tag);
-      }
-    }
+  let nouns = result.filter((e) => {
+    return e.fl == "noun";
+  });
+  let verbs = result.filter((e) => {
+    return e.fl == "verb";
+  });
+
+  for (let i = 0; i < nouns.length; i++) {
+    let newLi = document.createElement("li");
+    newLi.classList.add("noun");
+    newLi.innerHTML = `<div class="details"><p>Noun ${i + 1}</p><span>${
+      nouns[i].shortdef
+    }</span></div>`;
+    content.append(newLi);
   }
-}
 
-function search(word) {
-  getData(word);
-  searchInput.value = word;
+  for (let i = 0; i < verbs.length; i++) {
+    let newLi = document.createElement("li");
+    newLi.classList.add("verb");
+    newLi.innerHTML = `<div class="details"><p>Verb ${i + 1}</p><span>${
+      verbs[i].shortdef
+    }</span></div>`;
+    content.append(newLi);
+  }
 }
 
 const getData = async (word) => {
   wrapper.classList.remove("active");
   infoText.style.color = "#000";
   infoText.innerHTML = `Searching the meaning of <span>"${word}"</span>`;
-  let url = `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`;
+  let url = `https://dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=1a5753f0-337b-44ba-b567-5b3b71f37079`;
 
   try {
     let response = await axios.get(url);
     let result = await response.data;
+    console.log(result[0].hwi.prs[0].mw);
     data(result, word);
+    console.log(result);
   } catch (e) {
     infoText.innerHTML = `Can't find the meaning of <span>"${word}"</span>. Please, try to search for another word.`;
   }
@@ -60,6 +60,7 @@ const getData = async (word) => {
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   let word = searchInput.value;
+  content.innerHTML = "";
   getData(word);
 });
 

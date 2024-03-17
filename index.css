@@ -21,6 +21,7 @@ body {
   background: #fff;
   padding: 25px 28px 45px;
   box-shadow: 7px 7px 20px rgba(0, 0, 0, 0.05);
+  margin: 0px 20px;
 }
 .wrapper h1 {
   font-size: 32px;
@@ -93,9 +94,9 @@ body {
 }
 .wrapper.active ul {
   opacity: 1;
-  height: 303px;
+  height: fit-content;
 }
-.wrapper ul li {
+li {
   display: flex;
   list-style: none;
   margin-bottom: 14px;
@@ -151,3 +152,13 @@ ul .content::-webkit-scrollbar {
   margin-right: 5px;
   text-decoration: underline;
 }
+/* .noun,
+.verb,
+.synonyms {
+  display: none;
+}
+.noun.active,
+.verb.active,
+.synonyms.active {
+  display: block;
+} */
